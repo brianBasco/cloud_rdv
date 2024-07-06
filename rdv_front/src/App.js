@@ -1,43 +1,13 @@
 import logo from './logo.svg';
 import './App.css';
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-//import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-import { getFirestore } from "firebase/firestore";
+import React, { useEffect, useState } from 'react';
 import { doc, getDoc } from "firebase/firestore";
-//import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from './firebase';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDMjJ2dBPDWAx0sQAux0-KS0Fx4dpRmsLU",
-  authDomain: "rdvs-28a74.firebaseapp.com",
-  projectId: "rdvs-28a74",
-  storageBucket: "rdvs-28a74.appspot.com",
-  messagingSenderId: "728072010618",
-  appId: "1:728072010618:web:262f1618ee89eadb1134c3",
-  measurementId: "G-WZ9T1LT5KE"
-};
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-//const analytics = getAnalytics(app);
-// Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
-
-const docRef = doc(db, "rdv", "rdv");
-const docSnap = await getDoc(docRef);
-
-if (docSnap.exists()) {
-  console.log("Document data:", docSnap.data());
-} else {
-  // docSnap.data() will be undefined in this case
-  console.log("No such document!");
-}
-
+/*
 function App() {
   return (
     <div className="App">
@@ -58,5 +28,56 @@ function App() {
     </div>
   );
 }
+*/
+
+const App = () => {
+  const [doodle, setDoodle] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchDoodleAndUser = async () => {
+      try {
+        // Récupérer le document Doodle
+        const doodleRef = doc(db, 'rdv', 'mios');
+        const doodleSnap = await getDoc(doodleRef);
+
+        if (doodleSnap.exists()) {
+          const doodleData = doodleSnap.data();
+          setDoodle(doodleData);
+
+          // Récupérer le document User référencé, doit récuéper Marie
+          const userRef = doodleData.created_by;
+          const userSnap = await getDoc(userRef);
+
+          if (userSnap.exists()) {
+            setUser(userSnap.data());
+          } else {
+            console.error('No such user!');
+          }
+        } else {
+          console.error('No such doodle!');
+        }
+      } catch (error) {
+        console.error('Error fetching document:', error);
+      }
+    };
+
+    fetchDoodleAndUser();
+  }, []);
+
+  return (
+    <div>
+      {doodle && user ? (
+        <div>
+          <h1>Doodle: {doodle.lieu}</h1>
+          <h2>Created by: {user.nom}</h2>
+          <p>Email: {user.email}</p>
+        </div>
+      ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+  );
+};
 
 export default App;
