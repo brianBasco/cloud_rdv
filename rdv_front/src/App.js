@@ -6,6 +6,8 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from './firebase';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ModalComponent from './ModalComponent';
+import { Button } from 'react-bootstrap';
 
 /*
 function App() {
@@ -31,8 +33,18 @@ function App() {
 */
 
 const App = () => {
+
   const [doodle, setDoodle] = useState(null);
   const [user, setUser] = useState(null);
+
+  // states pour le Modal
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  const handleSave = () => {
+    // Logic for saving changes
+    setShow(false);
+  };
 
   useEffect(() => {
     const fetchDoodleAndUser = async () => {
@@ -76,6 +88,11 @@ const App = () => {
       ) : (
         <p>Loading...</p>
       )}
+      <Button variant="primary" onClick={handleShow}>
+        Launch Modal
+      </Button>
+
+      <ModalComponent show={show} handleClose={handleClose} handleSave={handleSave} />
     </div>
   );
 };
