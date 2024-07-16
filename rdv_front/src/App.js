@@ -3,11 +3,17 @@ import './App.css';
 
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
+
 import { db } from './firebase';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ModalComponent from './ModalComponent';
 import { Button } from 'react-bootstrap';
+
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+
+
 
 /*
 function App() {
@@ -37,7 +43,7 @@ const App = () => {
   const [doodle, setDoodle] = useState(null);
   const [user, setUser] = useState(null);
 
-  // states pour le Modal
+    // states pour le Modal
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -46,7 +52,63 @@ const App = () => {
     setShow(false);
   };
 
+   // Fonction pour rajouter des données au user :
+   const ajout = () => {
+    // Données supplémentaires à ajouter
+const additionalUserInfo = {
+    name: "John Doe",
+    address: "123 Main St",
+    phoneNumber: "+1234567890"
+};
+//const [documentData, setDocumentData] = useState(null);
+const auth = getAuth();
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/auth.user
+    const uid = user.uid;
+    console.log(uid)
+    getU(uid);
+  } else {
+    // User is signed out
+    // ...
+  }
+});
+
+
+
+};
+
+const getU = async(uid) => {
+  const citiesRef = collection(db, "users");
+// Create a query against the collection.
+const q = query(citiesRef, where("userRef", "==", uid));
+const querySnapshot = await getDocs(q);
+querySnapshot.forEach((doc) => {
+  // doc.data() is never undefined for query doc snapshots
+  console.log(doc.id, " => ", doc.data());
+});
+}
+
   useEffect(() => {
+
+// Authentification du User, exemple Seb
+const auth = getAuth();
+signInWithEmailAndPassword(auth, "seb@gmail.com", "jordan")
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    console.log(user)
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log("credentials erronés")
+  });
+
+ 
+
     const fetchDoodleAndUser = async () => {
       try {
         // Récupérer le document Doodle
@@ -91,6 +153,8 @@ const App = () => {
       <Button variant="primary" onClick={handleShow}>
         Launch Modal
       </Button>
+
+      <Button variant="primary" onClick={ajout}>Ajouter infos user</Button>
 
       <ModalComponent show={show} handleClose={handleClose} handleSave={handleSave} />
     </div>
