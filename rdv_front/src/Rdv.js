@@ -6,16 +6,20 @@ import { db } from './firebase';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
-function Rdv(rdvId) {
+const Rdv = ( {rdvId} ) => {
 
+    
     const [rdv, setRdv] = useState(null);
  
   useEffect(() => {
     console.log("montage Rdv")
-    
-    const fetchRdv = async (rdvId) => {
+    console.log(rdvId);
+    const fetchRdv = async () => {
+        
       try {
-        const rdvRef = doc(db, 'rdv', rdvId);
+        //console.log(rdvId.path);
+        const rdvRef = doc(db, 'rdv', rdvId.rdv);
+        //const rdvRef = doc(db, 'rdv', rdvId.id);
         const rdvSnap = await getDoc(rdvRef);
         if (rdvSnap.exists()) {
             setRdv(rdvSnap.data());
@@ -28,21 +32,17 @@ function Rdv(rdvId) {
         };
       }
 
-    fetchRdv(rdvId);
+    fetchRdv();
+    console.log(rdv);
   }, []);
 
   return (
-    
     <div>
-     { rdv ? (
-        <div>
-          <h2>Created by: {rdv.created_by}</h2>
+          
           <p>{rdv.lieu}</p>
-        </div>
-      ) : (
-        <p>Loading...</p>
-      )}
     </div>
+
+  
   );
 };
 

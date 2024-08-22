@@ -12,6 +12,7 @@ import ModalComponent from './ModalComponent';
 import { Button } from 'react-bootstrap';
 
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import Rdv from './Rdv';
 
 /*
 But de l'application :
@@ -33,23 +34,7 @@ function App() {
   const [listeRdvs, setListeRdvs] = useState([])
 
 
-  const fetchParticipations = async (userId) => {
-    try {
-      // Référence à la collection des participations d'un utilisateur
-      const participationsRef = collection(db, "users", userId, "participations");
-      // Récupérer les documents
-      const snapshot = await getDocs(participationsRef);
-      // Transformer les données en un tableau d'objets
-      const participationsList = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      // Mettre à jour l'état avec les participations
-      setParticipations(participationsList);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des participations :", error);
-    }
-  };
+  
 
 
   /*
@@ -102,12 +87,12 @@ function App() {
         const userRef = doc(db, 'users', 'or1MJdj3JKfI0sbhMUIeU49zVj22');
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-            setUser(userSnap.data());
+            setUser(userSnap);
             console.log("setter !!")
-            console.log(user.participations)
             // Récupérer ses Rdvs :
             // pour chaque participation, il faut récupérer le rdv correspondant
-            //fetchParticipations(userRef)
+            //fetchParticipations(userRef.id)
+            //console.log(participations);
           } else {
             console.error("Pas d'utilisateur!");
           }
@@ -148,6 +133,38 @@ function App() {
 
     fetchDoodleAndUser();
   }, []);
+
+
+  //Fetch participations if user exists
+useEffect( ()=> {
+
+ 
+  const fetchParticipations = async () => {
+    try {
+      // Référence à la collection des participations d'un utilisateur
+      console.log(user.id)
+      const participationsRef = collection(db, "users", user.id, "participations");
+      // Récupérer les documents
+      const snapshot = await getDocs(participationsRef);
+      // Transformer les données en un tableau d'objets
+      const participationsList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        rdv: doc.data().rdv,
+        //...doc.data(),
+      }));
+      console.log(participationsList);
+      // Mettre à jour l'état avec les participations
+      setParticipations(participationsList);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des participations :", error);
+    }
+  };
+  if(user != null) {
+  fetchParticipations();
+  }
+},[user])
+
+
 /*
     useEffect(() => {
     const fetchDoodleAndUser = async () => {
@@ -191,18 +208,7 @@ function App() {
       ) : (
         <p>Loading...</p>
       )}
-    {/*}
-      {doodle && user ? (
-        <div>
-          <h1>Doodle: {doodle.lieu}</h1>
-          <h2>Created by: {user.nom}</h2>
-          <p>Email: {user.email}</p>
-        </div>
-      ) : (
-        <p>Loading...</p>
-      )}
-       */}
-
+   
        {/* 
       <Button variant="primary" onClick={handleShow}>
         Launch Modal
@@ -214,13 +220,16 @@ function App() {
 
       <div>
         <h2>Mes participations</h2>
-        <ul>
-          {participations.map((participation) => (
-            <li key={participation.id}>
-              {participation.eventName} - {participation.date} - {participation.status}
-            </li>
+        {participations.length > 0 ?
+        (<ul>
+          {participations.map((participation) => 
+              (<li key={participation.id}>{participation.rdv}</li>
           ))}
-        </ul>
+        </ul>) :
+        (
+          <p>Loading...</p>
+        )
+        }
       </div>
 
     </div>
