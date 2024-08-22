@@ -13,29 +13,12 @@ import { Button } from 'react-bootstrap';
 
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
-
-
 /*
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+But de l'application :
+s'Authentifier avec l'utilisateur Ju
+récupère les rdvs de Ju : Mios et VSBA
+Afficher les participants de Mios et VSBA :
+
 */
 
 const App = () => {
@@ -52,63 +35,27 @@ const App = () => {
     setShow(false);
   };
 
-   // Fonction pour rajouter des données au user :
-   const ajout = () => {
-    // Données supplémentaires à ajouter
-const additionalUserInfo = {
-    name: "John Doe",
-    address: "123 Main St",
-    phoneNumber: "+1234567890"
-};
-//const [documentData, setDocumentData] = useState(null);
-const auth = getAuth();
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/auth.user
-    const uid = user.uid;
-    console.log(uid)
-    getU(uid);
-  } else {
-    // User is signed out
-    // ...
-  }
-});
-
-
-
-};
-
-const getU = async(uid) => {
-  const citiesRef = collection(db, "users");
-// Create a query against the collection.
-const q = query(citiesRef, where("userRef", "==", uid));
-const querySnapshot = await getDocs(q);
-querySnapshot.forEach((doc) => {
-  // doc.data() is never undefined for query doc snapshots
-  console.log(doc.id, " => ", doc.data());
-});
-}
-
+  // Exécution de la fonction après chargement du DOM
   useEffect(() => {
 
-// Authentification du User, exemple Seb
-const auth = getAuth();
-signInWithEmailAndPassword(auth, "seb@gmail.com", "jordan")
-  .then((userCredential) => {
-    // Signed in 
-    const user = userCredential.user;
-    console.log(user)
-    // ...
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    console.log("credentials erronés")
-  });
+    // Authentification du User, exemple Seb
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, "seb@gmail.com", "jordan")
+      .then((userCredential) => {
+        // Signed in 
+        const userAuth = userCredential.user;
+        console.log("utilsateur identifié : ")
+        console.log(userAuth)
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log("credentials erronés")
+      });
+  }, []);
 
- 
 
+    useEffect(() => {
     const fetchDoodleAndUser = async () => {
       try {
         // Récupérer le document Doodle
@@ -153,8 +100,7 @@ signInWithEmailAndPassword(auth, "seb@gmail.com", "jordan")
       <Button variant="primary" onClick={handleShow}>
         Launch Modal
       </Button>
-
-      <Button variant="primary" onClick={ajout}>Ajouter infos user</Button>
+    
 
       <ModalComponent show={show} handleClose={handleClose} handleSave={handleSave} />
     </div>
