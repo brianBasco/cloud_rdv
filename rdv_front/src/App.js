@@ -12,8 +12,8 @@ import ModalComponent from './ModalComponent';
 import { Button } from 'react-bootstrap';
 
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import Rdv from './Rdv';
 import Rdv2 from './composants/Rdv2';
+
 import fetchRdvParticipations from './utils/fetchRdvParticipants';
 
 /*
@@ -35,7 +35,7 @@ function App() {
   const [participations, setParticipations] = useState([]);
   const [rdvs, setRdvs] = useState([]);
 
-
+  // rdvs = [{id: int, rdv: {}}]
   
 
 
@@ -139,7 +139,7 @@ useEffect( ()=> {
         const rdvSnap = await getDoc(rdvRef);
         if (rdvSnap.exists()) {
             //setRdv(rdvSnap.data());
-            return rdvSnap.data();
+            return rdvSnap;
           } else {
             console.error("Ce Rdv n'existe pas");
           }
@@ -157,7 +157,9 @@ useEffect( ()=> {
         const promises = ids.map(async (id) => {
           //const element = await fetchElement(id);
           const element = await fetchRdv(id.rdv);
-          list.push(element); // Ajouter l'élément récupéré à la liste
+          // element est un snapshot de rdv
+          console.log(element.id)
+          list.push({id:element.id, data:element.data()})
         });
 
         // Attendre que toutes les promesses soient résolues
@@ -177,19 +179,7 @@ useEffect( ()=> {
 
   }, [participations]);
 
-  // Fetch les joueurs du Rdv
-  useEffect( () => {
-
-    // Utilisation de la fonction
-    if(rdvs.length > 0) {
-      addElementsToList(rdvs).then((result) => {
-        console.log("Tous les joueurs ont été récupérés :", result);
-        setRdvs(result);
-      });
-    fetchRdvParticipations();
-  },
-   []);
-
+  
   return (
     
     <div>
