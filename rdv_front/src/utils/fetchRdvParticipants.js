@@ -1,3 +1,5 @@
+/*
+
 const fetchRdvParticipations = async (rdv) => {
     try {
       const ref = collection(db, "rdv", rdv.id, "joueurs");
@@ -15,3 +17,4 @@ const fetchRdvParticipations = async (rdv) => {
   };
 
   export default fetchRdvParticipations;
+  */

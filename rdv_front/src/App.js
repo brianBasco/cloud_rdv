@@ -15,6 +15,7 @@ import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebas
 import Rdv2 from './composants/Rdv2';
 
 import fetchRdvParticipations from './utils/fetchRdvParticipants';
+import Header from './composants/Header';
 
 /*
 But de l'application :
@@ -36,7 +37,7 @@ function App() {
   const [rdvs, setRdvs] = useState([]);
 
   // rdvs = [{id: int, rdv: {}}]
-  
+
 
 
   /*
@@ -80,55 +81,57 @@ function App() {
 
   // 2. Chercher les Rdvs liés au user_auth : Ju
   useEffect(() => {
-    console.log("montage du User")
-    
+
     const fetchUser = async () => {
+      console.log("montage du User");
       try {
-        
+
         // Récupérer le user Ju
         const userRef = doc(db, 'users', 'or1MJdj3JKfI0sbhMUIeU49zVj22');
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-            setUser(userSnap);
-          } else {
-            console.error("Pas d'utilisateur!");
-          }
+          setUser(userSnap);
+        } else {
+          console.error("Pas d'utilisateur!");
         }
-        catch (error) {
-        console.error('Error fetching user:', error);
-        };
       }
+      catch (error) {
+        console.error('Error fetching user:', error);
+      };
+    }
+
     fetchUser();
+
+
   }, []);
 
-
   //Fetch participations if user exists
-useEffect( ()=> {
-  console.log("montage des participations");
-  const fetchParticipations = async () => {
-    try {
-      // Référence à la collection des participations d'un utilisateur
-      console.log(user.id)
-      const participationsRef = collection(db, "users", user.id, "participations");
-      // Récupérer les documents
-      const snapshot = await getDocs(participationsRef);
-      // Transformer les données en un tableau d'objets
-      const participationsList = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        rdv: doc.data().rdv,
-        //...doc.data(),
-      }));
-      console.log(participationsList);
-      // Mettre à jour l'état avec les participations
-      setParticipations(participationsList);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des participations :", error);
+  useEffect(() => {
+    console.log("montage des participations");
+    const fetchParticipations = async () => {
+      try {
+        // Référence à la collection des participations d'un utilisateur
+        console.log(user.id)
+        const participationsRef = collection(db, "users", user.id, "participations");
+        // Récupérer les documents
+        const snapshot = await getDocs(participationsRef);
+        // Transformer les données en un tableau d'objets
+        const participationsList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          rdv: doc.data().rdv,
+          //...doc.data(),
+        }));
+        console.log(participationsList);
+        // Mettre à jour l'état avec les participations
+        setParticipations(participationsList);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des participations :", error);
+      }
+    };
+    if (user != null) {
+      fetchParticipations();
     }
-  };
-  if(user != null) {
-  fetchParticipations();
-  }
-},[user])
+  }, [user])
 
 
   //Fetch rdv 
@@ -138,39 +141,39 @@ useEffect( ()=> {
         const rdvRef = doc(db, 'rdv', rdvId);
         const rdvSnap = await getDoc(rdvRef);
         if (rdvSnap.exists()) {
-            //setRdv(rdvSnap.data());
-            return rdvSnap;
-          } else {
-            console.error("Ce Rdv n'existe pas");
-          }
+          //setRdv(rdvSnap.data());
+          return rdvSnap;
+        } else {
+          console.error("Ce Rdv n'existe pas");
         }
-        catch (error) {
+      }
+      catch (error) {
         console.error('Error fetching rdv:', error);
-        };
-      }
+      };
+    }
 
-      // Fonction principale pour ajouter des éléments à la liste
-      async function addElementsToList(ids) {
-        const list = [];
+    // Fonction principale pour ajouter des éléments à la liste
+    async function addElementsToList(ids) {
+      const list = [];
 
-        // Créer un tableau de promesses pour récupérer chaque élément
-        const promises = ids.map(async (id) => {
-          //const element = await fetchElement(id);
-          const element = await fetchRdv(id.rdv);
-          // element est un snapshot de rdv
-          console.log(element.id)
-          list.push({id:element.id, data:element.data()})
-        });
+      // Créer un tableau de promesses pour récupérer chaque élément
+      const promises = ids.map(async (id) => {
+        //const element = await fetchElement(id);
+        const element = await fetchRdv(id.rdv);
+        // element est un snapshot de rdv
+        console.log(element.id)
+        list.push({ id: element.id, data: element.data() })
+      });
 
-        // Attendre que toutes les promesses soient résolues
-        await Promise.all(promises);
+      // Attendre que toutes les promesses soient résolues
+      await Promise.all(promises);
 
-        // Retourner la liste une fois tous les éléments ajoutés
-        return list;
-      }
+      // Retourner la liste une fois tous les éléments ajoutés
+      return list;
+    }
 
-      // Utilisation de la fonction
-      if(participations.length > 0) {
+    // Utilisation de la fonction
+    if (participations.length > 0) {
       addElementsToList(participations).then((result) => {
         console.log("Tous les éléments ont été récupérés :", result);
         setRdvs(result);
@@ -179,19 +182,20 @@ useEffect( ()=> {
 
   }, [participations]);
 
-  
+
   return (
-    
+
     <div>
-     { user ? (
+      <Header />
+      {user ? (
         <div>
           <h2>Created by: {user.nom}</h2>
         </div>
       ) : (
         <p>Loading...</p>
       )}
-   
-       {/* 
+
+      {/* 
       <Button variant="primary" onClick={handleShow}>
         Launch Modal
       </Button>
@@ -202,13 +206,13 @@ useEffect( ()=> {
 
       <div>
         <h2>Mes participations</h2>
-                <ul>
+        <ul>
           {rdvs.map(
-            (rdv) => 
+            (rdv) =>
               <Rdv2 key={rdv.id} rdv={rdv} />
           )}
-            </ul>
-        
+        </ul>
+
       </div>
 
     </div>
