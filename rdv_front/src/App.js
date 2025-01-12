@@ -3,8 +3,8 @@ import './App.css';
 
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc } from "firebase/firestore";
-import { collection, query, where, getDocs } from "firebase/firestore";
-
+import { collection, query, where, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
+import { useAuth } from './middlewares/AuthContext';
 import { db } from './firebase';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -41,12 +41,39 @@ function App() {
   const [location, setLocation] = useState('');
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
+  const { currentUser } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Logic to add RDV
-    console.log('RDV ajouté:', { title, date, location });
-    handleClose();
+    //console.log('RDV ajouté:', { title, date, location });
+    //handleClose();
+    //const user = auth.currentUser;
+
+    if (!currentUser) {
+      alert("Vous devez être connecté pour ajouter un rendez-vous.");
+      return;
+    }
+
+    try {
+      const newAppointment = {
+        //title,
+        //date,
+        //description,
+        created_by: currentUser.uid, // Récupère uniquement l'UID, // L'UID de l'utilisateur connecté
+        created_at: serverTimestamp(), // Date/heure générée par le serveur
+      };
+
+      await addDoc(collection(db, "rdv"), newAppointment);
+      //setSuccess("Rendez-vous ajouté avec succès !");
+      //setTitle('');
+      //setDate('');
+      //setDescription('');
+    } catch (err) {
+      console.error("Erreur lors de l'ajout du rendez-vous :", err);
+      //setError("Une erreur est survenue. Veuillez réessayer.");
+    }
+    handleClose()
   };
 
   // ----------- Authentification ------------
