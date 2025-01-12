@@ -5,15 +5,24 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Auth from './composants/Auth';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import ProtectedRoute from './middlewares/ProtectedRoute';
+import { AuthProvider } from './middlewares/AuthContext';
+import ErrorBoundary from './middlewares/ErrorBoundary'; // Importer ErrorBoundary
+import BuggyComponent from './composants/BuggyComponent'; // Importer BuggyComponent
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Router>
-      <Routes>
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/" element={<App />} />
-      </Routes>
+      <AuthProvider>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<ProtectedRoute><App /></ProtectedRoute>} />
+            <Route path="/bug" element={<BuggyComponent />} />
+          </Routes>
+        </ErrorBoundary>
+      </AuthProvider>
     </Router>
   </React.StrictMode>
 );

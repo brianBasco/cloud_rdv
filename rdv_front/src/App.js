@@ -8,8 +8,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from './firebase';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import ModalComponent from './ModalComponent';
-import { Button } from 'react-bootstrap';
+import { Button, Modal, Form } from 'react-bootstrap';
 
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import Rdv2 from './composants/Rdv2';
@@ -25,10 +24,9 @@ Afficher les participants de Mios et VSBA
 
 */
 
-
-
-
 function App() {
+
+
 
   //const [user_auth, setUser_auth] = useState('or1MJdj3JKfI0sbhMUIeU49zVj22');
   //const [doodle, setDoodle] = useState(null);
@@ -36,54 +34,28 @@ function App() {
   const [participations, setParticipations] = useState([]);
   const [rdvs, setRdvs] = useState([]);
 
-  // rdvs = [{id: int, rdv: {}}]
+  // ----------- Modal ------------
+  const [showModal, setShowModal] = useState(false);
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState('');
+  const [location, setLocation] = useState('');
+  const handleShow = () => setShowModal(true);
+  const handleClose = () => setShowModal(false);
 
-
-
-  /*
-    // states pour le Modal
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-  const handleSave = () => {
-    // Logic for saving changes
-    setShow(false);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Logic to add RDV
+    console.log('RDV ajouté:', { title, date, location });
+    handleClose();
   };
-*/
-  // Exécution de la fonction après chargement du DOM
-  // 1. Authentification
-  /*
-  useEffect(() => {
 
-    if(user_auth == null) {
-    // Authentification du User, exemple Seb
-    const auth = getAuth();
-    //signInWithEmailAndPassword(auth, "seb@gmail.com", "jordan")
-    signInWithEmailAndPassword(auth, "ju@gmail.com", "jordan")
-      .then(
-        (userCredential) => {
-        // Signed in 
-        //const userAuth = userCredential.user;
-        //setUser_auth(userCredential.user);
-        console.log("utilisateur identifié : ")
-        console.log(userCredential.user.uid)
-        setUser_auth(userCredential.user.uid);
-      },
-      (error) => {
-        //const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorMessage)
-      });
-  }}, []);
-  */
-
-
-
+  // ----------- Authentification ------------
   // 2. Chercher les Rdvs liés au user_auth : Ju
   useEffect(() => {
 
     const fetchUser = async () => {
       console.log("montage du User");
+
       try {
 
         // Récupérer le user Ju
@@ -195,14 +167,51 @@ function App() {
         <p>Loading...</p>
       )}
 
-      {/* 
-      <Button variant="primary" onClick={handleShow}>
-        Launch Modal
-      </Button>
-    
+      <div className="container mt-4">
+        <Button variant="primary" onClick={handleShow}>
+          Ajouter un RDV
+        </Button>
+      </div>
 
-      <ModalComponent show={show} handleClose={handleClose} handleSave={handleSave} />
-      */}
+      <Modal show={showModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Ajouter un RDV</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="formTitle">
+              <Form.Label>Titre</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Entrez le titre"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="formDate">
+              <Form.Label>Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="formLocation">
+              <Form.Label>Lieu</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Entrez le lieu"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Ajouter
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
 
       <div>
         <h2>Mes participations</h2>
