@@ -15,6 +15,7 @@ import Rdv2 from './composants/Rdv2';
 
 import fetchRdvParticipations from './utils/fetchRdvParticipants';
 import Header from './composants/Header';
+import ModalRdvForm from './composants/ModalRdvForm';
 
 /*
 But de l'application :
@@ -36,45 +37,13 @@ function App() {
 
   // ----------- Modal ------------
   const [showModal, setShowModal] = useState(false);
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
-  const [location, setLocation] = useState('');
-  const handleShow = () => setShowModal(true);
+  //const [isSubmitted, setIsSubmitted] = useState(false);
+  const handleShow = () => {
+    //   setIsSubmitted(false); // Réinitialisation du formulaire
+    setShowModal(true);
+  }
   const handleClose = () => setShowModal(false);
   const { currentUser } = useAuth();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Logic to add RDV
-    //console.log('RDV ajouté:', { title, date, location });
-    //handleClose();
-    //const user = auth.currentUser;
-
-    if (!currentUser) {
-      alert("Vous devez être connecté pour ajouter un rendez-vous.");
-      return;
-    }
-
-    try {
-      const newAppointment = {
-        //title,
-        //date,
-        //description,
-        created_by: currentUser.uid, // Récupère uniquement l'UID, // L'UID de l'utilisateur connecté
-        created_at: serverTimestamp(), // Date/heure générée par le serveur
-      };
-
-      await addDoc(collection(db, "rdv"), newAppointment);
-      //setSuccess("Rendez-vous ajouté avec succès !");
-      //setTitle('');
-      //setDate('');
-      //setDescription('');
-    } catch (err) {
-      console.error("Erreur lors de l'ajout du rendez-vous :", err);
-      //setError("Une erreur est survenue. Veuillez réessayer.");
-    }
-    handleClose()
-  };
 
   // ----------- Authentification ------------
   // 2. Chercher les Rdvs liés au user_auth : Ju
@@ -200,45 +169,7 @@ function App() {
         </Button>
       </div>
 
-      <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Ajouter un RDV</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="formTitle">
-              <Form.Label>Titre</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Entrez le titre"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group controlId="formDate">
-              <Form.Label>Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group controlId="formLocation">
-              <Form.Label>Lieu</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Entrez le lieu"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-              Ajouter
-            </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
+      <ModalRdvForm showModal={showModal} handleClose={handleClose} currentUser={currentUser} />
 
       <div>
         <h2>Mes participations</h2>
