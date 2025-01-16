@@ -4,22 +4,35 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import Joueur from './Joueur.js';
-import { fetchParticipants } from '../services.js';
+import { fetchParticipants, fetchRdv } from '../services.js';
 
-const Rdv2 = ({ rdv }) => {
+// Le composant Rdv2 doit afficher les participants d'un rendez-vous
+// Celui-ci reçoit l'id du Rdv en props
+const Rdv2 = ({ id }) => {
 
-  console.log(rdv);
+  //console.log(rdv);
   const [joueurs, setJoueurs] = useState([])
+  const [rdv, setRdv] = useState(null);
+
+  useEffect(() => {
+    console.log("id du rdv :");
+    const getRdv = async () => {
+      const data = await fetchRdv(id);
+      console.log(data);
+      setRdv(data);
+    }
+    getRdv()
+  }, [id]);
 
   // Au montage du composant celui-ci doit chercher les participants grâce à l'Id du rdv
   useEffect(() => {
     const getParticipants = async () => {
-      const data = await fetchParticipants(rdv.id);
+      const data = await fetchParticipants(id);
       setJoueurs(data);
     }
     getParticipants()
   },
-    [rdv]);
+    [id]);
 
   useEffect(() => {
     console.log("joueurs mis à jour :");
@@ -27,12 +40,16 @@ const Rdv2 = ({ rdv }) => {
   }
     , [joueurs]);
 
+  if (!rdv) {
+    return <div>Le rdv n'existe pas...</div>; // Affiche un état de chargement si les données ne sont pas disponibles
+  }
+
   return (
     <div>
       <div className="card" style={{ width: 18 + 'rem' }}>
         <div className="card-body">
-          <h5 className="card-title">{rdv.data.nom}</h5>
-          <p className="card-text">{rdv.data.lieu}</p>
+          <h5 className="card-title">{id}</h5>
+          <p className="card-text">{id}</p>
           <div>
 
             <h2>Joueurs</h2>

@@ -16,6 +16,7 @@ import Rdv2 from './composants/Rdv2';
 import fetchRdvParticipations from './utils/fetchRdvParticipants';
 import Header from './composants/Header';
 import ModalRdvForm from './composants/ModalRdvForm';
+import { redirect } from 'react-router-dom';
 
 /*
 But de l'application :
@@ -27,13 +28,7 @@ Afficher les participants de Mios et VSBA
 
 function App() {
 
-
-
-  //const [user_auth, setUser_auth] = useState('or1MJdj3JKfI0sbhMUIeU49zVj22');
-  //const [doodle, setDoodle] = useState(null);
-  const [user, setUser] = useState(null);
   const [participations, setParticipations] = useState([]);
-  const [rdvs, setRdvs] = useState([]);
 
   // ----------- Modal ------------
   const [showModal, setShowModal] = useState(false);
@@ -45,123 +40,43 @@ function App() {
   const handleClose = () => setShowModal(false);
   const { currentUser } = useAuth();
 
-  // ----------- Authentification ------------
-  // 2. Chercher les Rdvs liés au user_auth : Ju
+
+  // 1. Chercher les particpations liées à l'utilisateur connecté
   useEffect(() => {
+    const fetchUserParticipations = async (userId) => {
+      console.log(`Récupération des participations de l'utilisateur ${currentUser.uid}...`);
 
-    const fetchUser = async () => {
-      console.log("montage du User");
-
-      try {
-
-        // Récupérer le user Ju
-        const userRef = doc(db, 'users', 'or1MJdj3JKfI0sbhMUIeU49zVj22');
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          setUser(userSnap);
-        } else {
-          console.error("Pas d'utilisateur!");
-        }
+      if (!currentUser || !currentUser.uid) {
+        //console.error("Utilisateur non connecté ou UID manquant");
+        alert("Un problème est survenu, veuillez vous reconnecter");
       }
-      catch (error) {
-        console.error('Error fetching user:', error);
-      };
-    }
 
-    fetchUser();
-
-
-  }, []);
-
-  //Fetch participations if user exists
-  useEffect(() => {
-    console.log("montage des participations");
-    const fetchParticipations = async () => {
       try {
-        // Référence à la collection des participations d'un utilisateur
-        console.log(user.id)
-        const participationsRef = collection(db, "users", user.id, "participations");
-        // Récupérer les documents
-        const snapshot = await getDocs(participationsRef);
-        // Transformer les données en un tableau d'objets
-        const participationsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          rdv: doc.data().rdv,
-          //...doc.data(),
-        }));
-        console.log(participationsList);
-        // Mettre à jour l'état avec les participations
-        setParticipations(participationsList);
+        // Référence à la sous-collection "participations" sous un document "user"
+        const participationsRef = collection(db, "users", currentUser.uid, "participations");
+
+        // Récupérer tous les documents de la sous-collection
+        const querySnapshot = await getDocs(participationsRef);
+
+        // Transformer les documents en un tableau d'objets
+        const participations = querySnapshot.docs.map(doc => { return { id: doc.id } });
+        console.log("Participations récupérées :", participations);
+
+        // Retourner ou utiliser les données comme vous le souhaitez
+        //return participations;
+        setParticipations(participations);
       } catch (error) {
         console.error("Erreur lors de la récupération des participations :", error);
       }
     };
-    if (user != null) {
-      fetchParticipations();
-    }
-  }, [user])
 
-
-  //Fetch rdv 
-  useEffect(() => {
-    const fetchRdv = async (rdvId) => {
-      try {
-        const rdvRef = doc(db, 'rdv', rdvId);
-        const rdvSnap = await getDoc(rdvRef);
-        if (rdvSnap.exists()) {
-          //setRdv(rdvSnap.data());
-          return rdvSnap;
-        } else {
-          console.error("Ce Rdv n'existe pas");
-        }
-      }
-      catch (error) {
-        console.error('Error fetching rdv:', error);
-      };
-    }
-
-    // Fonction principale pour ajouter des éléments à la liste
-    async function addElementsToList(ids) {
-      const list = [];
-
-      // Créer un tableau de promesses pour récupérer chaque élément
-      const promises = ids.map(async (id) => {
-        //const element = await fetchElement(id);
-        const element = await fetchRdv(id.rdv);
-        // element est un snapshot de rdv
-        console.log(element.id)
-        list.push({ id: element.id, data: element.data() })
-      });
-
-      // Attendre que toutes les promesses soient résolues
-      await Promise.all(promises);
-
-      // Retourner la liste une fois tous les éléments ajoutés
-      return list;
-    }
-
-    // Utilisation de la fonction
-    if (participations.length > 0) {
-      addElementsToList(participations).then((result) => {
-        console.log("Tous les éléments ont été récupérés :", result);
-        setRdvs(result);
-      });
-    }
-
-  }, [participations]);
-
+    fetchUserParticipations();
+  }, [currentUser]);
 
   return (
 
     <div>
       <Header />
-      {user ? (
-        <div>
-          <h2>Created by: {user.nom}</h2>
-        </div>
-      ) : (
-        <p>Loading...</p>
-      )}
 
       <div className="container mt-4">
         <Button variant="primary" onClick={handleShow}>
@@ -173,12 +88,15 @@ function App() {
 
       <div>
         <h2>Mes participations</h2>
-        <ul>
-          {rdvs.map(
-            (rdv) =>
-              <Rdv2 key={rdv.id} rdv={rdv} />
-          )}
-        </ul>
+        {participations.length === 0 ? (
+          <p>Chargement des participations...</p>
+        ) : (
+          <ul>
+            {participations.map((rdv) => (
+              <Rdv2 key={rdv.id} id={rdv.id} />
+            ))}
+          </ul>
+        )}
 
       </div>
 
