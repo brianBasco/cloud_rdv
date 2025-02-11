@@ -53,4 +53,27 @@ export async function getUtilisateurParticipations(db, idUtilisateur) {
 
 export async function addUtilisateurParticipation(db, idUtilisateur, idParticipation) { }
 
-export async function addUtilisateur(db, email) { }
+export async function addUtilisateur(db, email, nom) {
+    try {
+        // Créer un nouveau document avec un ID généré automatiquement
+        const newUserRef = doc(collection(db, 'utilisateurs'));
+
+        // Données initiales de l'utilisateur
+        const userData = {
+            email: email,
+            nom: nom,
+            created_at: new Date(),
+            updated_at: new Date()
+        };
+
+        // Créer le document utilisateur
+        await setDoc(newUserRef, userData);
+
+        // Retourner l'ID du nouvel utilisateur
+        return newUserRef.id;
+    } catch (error) {
+        console.error('Erreur lors de la création de l\'utilisateur:', error);
+        //throw error;
+        return null;
+    }
+}
