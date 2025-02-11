@@ -18,8 +18,16 @@ const Rdv2 = ({ id }) => {
     console.log("id du rdv :");
     const getRdv = async () => {
       const data = await fetchRdv(id);
+      console.log("rdv fetché :");
       console.log(data);
-      setRdv(data);
+      if (data != null) {
+        const obj = {
+          created_by: data.created_by,
+          created_at: new Date(data.created_at.seconds * 1000).toLocaleDateString(),
+        }
+        setRdv(obj);
+      }
+      //setRdv(data);
     }
     getRdv()
   }, [id]);
@@ -49,7 +57,8 @@ const Rdv2 = ({ id }) => {
       <div className="card" style={{ width: 18 + 'rem' }}>
         <div className="card-body">
           <h5 className="card-title">{id}</h5>
-          <p className="card-text">{id}</p>
+          <p className="card-text">{rdv.created_by}</p>
+          <p className="card-text">{rdv.created_at}</p>
           <div>
 
             <h2>Joueurs</h2>

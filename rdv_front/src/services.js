@@ -26,7 +26,8 @@ export const fetchRdv = async (rdvId) => {
         }
     } catch (error) {
         console.error("Erreur lors de la récupération du RDV :", error);
-        throw new Error("Une erreur est survenue lors de la récupération du RDV.");
+        // throw new Error("Une erreur est survenue lors de la récupération du RDV.");
+        return null; // Retour explicite en cas d'erreur
     }
 };
 
@@ -41,3 +42,4 @@ export const fetchParticipants = async (rdvId) => {
         }
     ));
 }
+

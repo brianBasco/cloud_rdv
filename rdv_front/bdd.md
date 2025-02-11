@@ -41,3 +41,51 @@ nbre_min = (default=0)
 ## VSBA (créé par Marie)
 
 - Ju : Présent
+
+# Modèle V2 :
+
+// Collection Users -- Pour l'Authentification avec Firebase
+{
+  "_id": ObjectId("..."),
+  "email": "user@example.com",
+  "password": "hashed_password",
+}
+
+// Collection Utilisateurs
+{
+  "_id": "users_id",
+  "email": "user@example.com",
+  "nom": "Seb",
+  "participations": [
+    {
+      "rdv_id": ObjectId("...")
+    },
+  ],
+  "creations": [
+    {
+      "rdv_id": ObjectId("...")
+    },
+  ],
+}
+
+// Collection RDV
+{
+  "_id": "ObjectId("...")",
+  "title": "Réunion projet",
+  "description": "Discussion mensuelle",
+  "createdBy": Utilisateur_id, // Référence à Utilisateurs._id
+  "startDate": ISODate("2024-02-07T14:00:00Z"),
+  "endDate": ISODate("2024-02-07T15:00:00Z"),
+  "location": {
+    "type": "virtual|physical",
+    "details": "Lien zoom ou adresse"
+  },
+  "participants": [
+    {
+      "type": "registered", // Utilisateur enregistré
+      "utilisateur_id": ObjectId("..."), // Référence à utilisateurs._id
+      "status": "accepted|pending|declined",
+      "nom": "Seb
+    }
+  ]
+}
