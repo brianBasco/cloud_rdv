@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { collection, getDocs } from 'firebase/firestore';
-import { db, auth } from '../firebase.js'; // Importer auth
+import { db, auth } from '../services/firebase.js'; // Importer auth
 
 const Joueur = ({ joueur }) => {
   const [currentUser, setCurrentUser] = useState(null);

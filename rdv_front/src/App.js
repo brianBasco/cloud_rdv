@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { doc, getDoc } from "firebase/firestore";
 import { collection, query, where, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { useAuth } from './middlewares/AuthContext';
-import { db } from './firebase';
+import { db } from './services/firebase';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Modal, Form } from 'react-bootstrap';
@@ -17,6 +17,7 @@ import fetchRdvParticipations from './utils/fetchRdvParticipants';
 import Header from './composants/Header';
 import ModalRdvForm from './composants/ModalRdvForm';
 import { redirect } from 'react-router-dom';
+import { getUtilisateurIdByEmail, getUtilisateurParticipations } from './services/UtilisateursServices';
 
 /*
 But de l'application :
@@ -43,6 +44,7 @@ function App() {
 
   // 1. Chercher les particpations liées à l'utilisateur connecté
   useEffect(() => {
+    /*
     const fetchUserParticipations = async (userId) => {
       console.log(`Récupération des participations de l'utilisateur ${currentUser.uid}...`);
 
@@ -66,6 +68,29 @@ function App() {
         //return participations;
         setParticipations(participations);
       } catch (error) {
+        console.error("Erreur lors de la récupération des participations :", error);
+      }
+    };
+
+    fetchUserParticipations();
+    */
+    // 1. Récupérer le mail de l'utilisateur connecté
+    // 2. Récupérer l'ID du Document Utilisateur de l'utilisateur connecté
+    // 3. Récupérer les participations de l'utilisateur connecté
+    const fetchUserParticipations = async () => {
+      console.log(`Récupération des participations de l'utilisateur ${currentUser.uid}...`);
+
+      if (!currentUser || !currentUser.uid) {
+        //console.error("Utilisateur non connecté ou UID manquant");
+        alert("Un problème est survenu, veuillez vous reconnecter");
+      }
+
+      try {
+        const idUtilisateur = await getUtilisateurIdByEmail(db, currentUser.email);
+        const participations = await getUtilisateurParticipations(db, idUtilisateur);
+        setParticipations(participations);
+      }
+      catch (error) {
         console.error("Erreur lors de la récupération des participations :", error);
       }
     };

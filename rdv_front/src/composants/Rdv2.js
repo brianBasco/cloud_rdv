@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase.js';
+import { db } from '../services/firebase.js';
 import Joueur from './Joueur.js';
-import { fetchParticipants, fetchRdv } from '../services.js';
+import { fetchParticipants, fetchRdv } from '../services/services.js';
 
 // Le composant Rdv2 doit afficher les participants d'un rendez-vous
 // Celui-ci reçoit l'id du Rdv en props

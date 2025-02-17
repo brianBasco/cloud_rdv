@@ -72,7 +72,7 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 ### A faire :
 
 - Implémenter page d'authentification avec redirection : OK
-- Demander à gpt comment gérer les utilisateurs et les relations entre documents et users dans Firebase
+- Ajouter un bouton pour créer un nouveau Rdv : tester fonction addRdv()
 - Reprendre les contraintes de la base de données Sqlite pour les réimplanter sur cette App.
 - Immplémenter une page de gestion des contacts Google
 - Redéfinir le composant Rdv2.js, celui-ci doit récupérer les data du rdv ET les participants dans la sous-collection

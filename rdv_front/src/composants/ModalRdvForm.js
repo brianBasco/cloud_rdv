@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from '../firebase';
+import { db } from '../services/firebase';
 
 
 

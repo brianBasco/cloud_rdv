@@ -1,4 +1,7 @@
-// -------------------------------------------- Fonctions V2 faites par Claude : 
+
+import { getDocs, collection, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { query, where, setDoc } from "firebase/firestore";
+// -------------------------------------------- Fonctions V2 faites par Claude :
 
 // Fonction pour récupérer l'ID d'un document Utilisateur à partir de son email
 // retourne : Utilisateur ou null
@@ -23,8 +26,8 @@ export async function getUtilisateurIdByEmail(db, email) {
         return null;
     } catch (error) {
         console.error("Erreur lors de la récupération de l'utilisateur: ", error);
-        //throw error;
-        return null
+        throw error;
+        //return null
     }
 }
 
@@ -46,14 +49,58 @@ export async function getUtilisateurParticipations(db, idUtilisateur) {
         return participations;
     } catch (error) {
         console.error('Erreur lors de la récupération des participations:', error);
-        //throw error;
-        return null;
+        throw error;
     }
 }
 
-export async function addUtilisateurParticipation(db, idUtilisateur, idParticipation) { }
 
-export async function addUtilisateur(db, email, nom) {
+
+/**
+ * Ajoute une participation à un utilisateur dans Firestore.
+ * @param {Firestore} db - Instance Firestore.
+ * @param {string} idUtilisateur - ID de l'utilisateur.
+ * @param {string} idParticipation - ID du RDV à ajouter.
+ */
+export async function addUtilisateurParticipation(db, idUtilisateur, idParticipation) {
+    try {
+        const userRef = doc(db, "utilisateurs", idUtilisateur);
+
+        await updateDoc(userRef, {
+            participations: arrayUnion(idParticipation)
+        });
+
+        console.log("Participation ajoutée avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de l'ajout de la participation :", error);
+        throw error;
+    }
+}
+
+/**
+ * Ajoute une participation à un utilisateur dans Firestore.
+ * @param {Firestore} db - Instance Firestore.
+ * @param {string} idUtilisateur - ID de l'utilisateur.
+ * @param {string} idCreation - ID du Rdv créé à ajouter.
+ */
+export async function addUtilisateurCreation(db, idUtilisateur, idCreation) {
+    try {
+        const userRef = doc(db, "utilisateurs", idUtilisateur);
+
+        await updateDoc(userRef, {
+            creations: arrayUnion(idCreation)
+        });
+
+        console.log("Création ajoutée avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de l'ajout de la création à l'utilisateur :", error);
+        throw error;
+    }
+}
+
+
+
+// Fonction pour ajouter un nouvel utilisateur, retourne l'ID du nouvel utilisateur
+export async function addUtilisateur(db, email) {
     try {
         // Créer un nouveau document avec un ID généré automatiquement
         const newUserRef = doc(collection(db, 'utilisateurs'));
@@ -61,7 +108,6 @@ export async function addUtilisateur(db, email, nom) {
         // Données initiales de l'utilisateur
         const userData = {
             email: email,
-            nom: nom,
             created_at: new Date(),
             updated_at: new Date()
         };
@@ -73,7 +119,6 @@ export async function addUtilisateur(db, email, nom) {
         return newUserRef.id;
     } catch (error) {
         console.error('Erreur lors de la création de l\'utilisateur:', error);
-        //throw error;
-        return null;
+        throw error;
     }
 }

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Importer useNavigate
-import { auth } from '../firebase';
+import { auth } from '../services/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { Modal, Button } from 'react-bootstrap'; // Importer les composants Bootstrap
 import './Auth.css'; // Importer le fichier CSS
+import { db } from '../services/firebase'; // Importer l'instance Firestore
+import { addUtilisateur } from '../services/UtilisateursServices';
 
 const Auth = () => {
     const [email, setEmail] = useState('');
@@ -15,26 +17,28 @@ const Auth = () => {
     const [emailBorderColor, setEmailBorderColor] = useState(''); // État pour la bordure de l'email
     const navigate = useNavigate(); // Initialiser useNavigate
 
-    const handleRegister = async () => {
+    const isRegistered = async () => {
         if (password !== confirmPassword) {
             setModalMessage('Passwords do not match');
             setShowModal(true);
-            return;
+            return false;
         }
         if (!/^(?=.*\d).{8,}$/.test(password)) {
             setModalMessage('Password must be at least 8 characters long and contain at least one number');
             setShowModal(true);
-            return;
+            return false;
         }
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            setModalMessage('User registered successfully');
-            setShowModal(true);
-            navigate('/'); // Rediriger vers la page principale
+            //setModalMessage('User registered successfully');
+            //setShowModal(true);
+            //navigate('/'); // Rediriger vers la page principale
+            return true;
         } catch (error) {
             console.error('Error registering user:', error);
-            setModalMessage('Error registering user');
-            setShowModal(true);
+            //setModalMessage('Error registering user');
+            //setShowModal(true);
+            throw error;
         }
     };
 
@@ -60,6 +64,25 @@ const Auth = () => {
             setEmailBorderColor('red');
         }
     };
+
+    async function handleRegister() {
+        try {
+            if (!await isRegistered()) {
+                return;
+            }
+            //await register();
+            await addUtilisateur(db, email);
+            navigate('/'); // Rediriger vers la page principale
+
+        }
+        catch (error) {
+            console.error('Error registering user:', error);
+            setModalMessage('Error registering user');
+            setShowModal(true);
+        }
+
+    }
+
 
     return (
         <div className="auth-container">
